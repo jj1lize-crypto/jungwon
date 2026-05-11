@@ -353,7 +353,7 @@ const TNAMES={"space":"Space & Home","body":"Body & Senses","taste":"Taste & Col
 const ANAMES={"a01":"Lighten","a02":"Together","a03":"Witness","a04":"Hold"};
 const TCOLORS={space:'#5c6b3a',body:'#c4845a',taste:'#9aab9e',safety:'#6a5e7a'};
 const QDATA={"q01":{q:"Something I never want to lose is ___",ex:"e.g. a habit, a person, a feeling, a place",f:"Is there something you've already lost that you wish you hadn't?"},"q02":{q:"A small habit I keep coming back to is ___",ex:"e.g. a morning routine, something you do without thinking",f:"Is there something you keep doing even when you tell yourself to stop?"},"q03":{q:"The moment I feel most like myself is ___",ex:"e.g. alone at home, cooking, doing nothing",f:"Is there a place or moment where you feel like you can breathe?"},"q04":{q:"What connects me to you is ___",ex:"e.g. a shared memory, something we both do",f:"Is there something small I do that actually matters to you?"},"q05":{q:"I've recently noticed ___",ex:"e.g. something changing in my body, a new pattern",f:"Is there something your body has been telling you that you've been ignoring?"},"q06":{q:"Right now I'm most worried about ___",ex:"e.g. health, money, someone I care about",f:"Is there something that keeps coming back to your mind?"},"q07":{q:"I find it hard to ask for help because ___",ex:"e.g. I don't want to be a burden, I don't know what I need",f:"Is there a way I could make it easier for you to ask?"},"q08":{q:"Something I've pictured for myself but never said out loud is ___",ex:"e.g. a different way of living, something I want to try",f:"Is there something you've kept only to yourself?"},"q09":{q:"Something I've been holding back is ___",ex:"e.g. a feeling, something I've been waiting to say",f:"Is there something you've been waiting for the right moment to say?"},"q10":{q:"Something that feels like pressure to me is ___",ex:"e.g. expectations, unspoken roles, routines that no longer fit",f:"Is there something that used to feel like care but started feeling like control?"},"q11":{q:"What I'm most afraid of losing is ___",ex:"e.g. someone's health, a family habit, a feeling of safety",f:"Is there something you're already missing before it's gone?"},"q12":{q:"I need your support most when ___",ex:"e.g. I'm overwhelmed, I seem fine but I'm not",f:"What's something I do when I'm trying to help that actually makes it harder?"}};
-const DEMO=[{"name": "Jiwon", "topic": "space", "q": "q03", "a": "a03", "answer": "The kitchen at 6am, before anyone wakes up.", "color": "#5c6b3a"}, {"name": "Father", "topic": "body", "q": "q05", "a": "a01", "answer": "My back has been telling me to slow down for a year.", "color": "#c4845a"}, {"name": "Mother", "topic": "taste", "q": "q01", "a": "a02", "answer": "The smell of kimchi she makes every winter.", "color": "#9aab9e"}, {"name": "Brother", "topic": "safety", "q": "q06", "a": "a03", "answer": "Whether the family will stay close as we get older.", "color": "#6a5e7a"}, {"name": "Hyun", "topic": "space", "q": "q02", "a": "a04", "answer": "Making tea and sitting by the window for ten minutes.", "color": "#5c6b3a"}, {"name": "딸", "topic": "body", "q": "q07", "a": "a02", "answer": "I don't want to feel like a burden when I'm tired.", "color": "#c4845a"}];
+const DEMO=[{"name": "Jiwon", "topic": "space", "q": "q03", "a": "a03", "answer": "The kitchen at 6am, before anyone wakes up.", "color": "#5c6b3a"}, {"name": "Father", "topic": "body", "q": "q05", "a": "a01", "answer": "My back has been telling me to slow down for a year.", "color": "#c4845a"}, {"name": "Mother", "topic": "taste", "q": "q01", "a": "a02", "answer": "", "photo": "https://jj1lize-crypto.github.io/jungone/trace-photo.jpg", "color": "#9aab9e"}, {"name": "Brother", "topic": "safety", "q": "q06", "a": "a03", "answer": "Whether the family will stay close as we get older.", "color": "#6a5e7a"}, {"name": "Hyun", "topic": "space", "q": "q02", "a": "a04", "answer": "", "voice": "https://jj1lize-crypto.github.io/jungone/trace-voice.mp3", "color": "#5c6b3a"}, {"name": "딸", "topic": "body", "q": "q07", "a": "a02", "answer": "I don't want to feel like a burden when I'm tired.", "color": "#c4845a"}];
 
 let S={topic:null,question:null,action:null};
 let flipped=false;
@@ -517,10 +517,8 @@ function showBubble(e,pos,W){
   showBubbleAt(e,pos.x,pos.y-50);
 }
 
-let currentAudio=null;
-
 function showBubbleAt(e,x,y){
-  if(currentAudio){currentAudio.pause();currentAudio=null;}
+  if(window._curAudio){window._curAudio.pause();window._curAudio=null;}
   const bub=document.getElementById("answerBubble");
   const col=e.color||"#9aab9e";
   const inner=document.getElementById("bubbleInner");
@@ -532,24 +530,26 @@ function showBubbleAt(e,x,y){
   if(e.photo){
     inner.innerHTML='<img src="'+e.photo+'" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;display:block;"/>';
   } else if(e.voice){
-    const bars=Array.from({length:28},(_,i)=>{
-      const h=8+Math.abs(Math.sin(i*0.7+1)*20+Math.cos(i*0.4)*14);
-      return '<rect x="'+( i*6)+'" y="'+((30-h)/2)+'" width="4" height="'+h+'" rx="2" fill="'+col+'" opacity="0.75"/>';
-    }).join("");
-    inner.innerHTML='<svg width="168" height="30" viewBox="0 0 168 30">'+bars+'</svg><div style="font-family:DM Mono,monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:'+col+';opacity:.6;margin-top:5px;">▶ playing</div>';
-    currentAudio=new Audio(e.voice);
-    currentAudio.play().catch(()=>{});
+    var bars="";
+    for(var i=0;i<28;i++){
+      var h=8+Math.abs(Math.sin(i*0.7+1)*20+Math.cos(i*0.4)*14);
+      bars+='<rect x="'+(i*6)+'" y="'+((30-h)/2)+'" width="4" height="'+h+'" rx="2" fill="'+col+'" opacity="0.75"/>';
+    }
+    inner.innerHTML='<svg width="168" height="30" viewBox="0 0 168 30">'+bars+'</svg><div style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:'+col+';opacity:.6;margin-top:5px;">▶ playing</div>';
+    var audio=new Audio(e.voice);
+    audio.play().catch(function(){});
+    window._curAudio=audio;
   } else {
     inner.textContent=e.answer;
   }
 
-  const bw=180;
-  let lx=x-bw/2;
+  var bw=180;
+  var lx=x-bw/2;
   lx=Math.max(10,Math.min(lx,window.innerWidth-bw-10));
   bub.style.left=lx+"px";
   bub.style.top=Math.max(10,y-20)+"px";
   bub.classList.remove("show");
-  requestAnimationFrame(()=>bub.classList.add("show"));
+  requestAnimationFrame(function(){bub.classList.add("show");});
 }
 
 function resetAll(){
