@@ -428,7 +428,7 @@ function goBack(id){
 }
 
 function buildFinalCard(){
-  const t=S.topic,q=S.question,a=S.action;
+  const t=S.topic,q=S.question;
   const qi=parseInt(q.replace('q',''))-1;
   document.getElementById('imgT').src=TSRCS[t];
   document.getElementById('imgQ').src=QSRCS[qi];
@@ -436,14 +436,10 @@ function buildFinalCard(){
   document.getElementById('cFront').classList.remove('hide');
   document.getElementById('cBack').classList.remove('show');
   const d=QDATA[q];
-  const ad=ADATA[a];
   document.getElementById('bBadges').innerHTML=
     '<span class="back-badge">'+TNAMES[t]+'</span>'+
-    '<span class="back-badge">'+q.toUpperCase()+'</span>'+
-    '<span class="back-badge">'+ad.name+'</span>';
+    '<span class="back-badge">'+q.toUpperCase()+'</span>';
   document.getElementById('bQ').textContent=d.q;
-
-  document.getElementById('bAction').textContent=ad.desc;
 }
 
 function flipCard(){
